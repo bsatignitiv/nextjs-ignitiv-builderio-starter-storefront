@@ -2,9 +2,19 @@ import React, { useEffect, useState } from 'react'
 
 import Add from '@mui/icons-material/Add'
 import ArrowBackIos from '@mui/icons-material/ArrowBackIos'
-import { Stack, Typography, Divider, Box, useMediaQuery, useTheme, Button } from '@mui/material'
+import {
+  Stack,
+  Typography,
+  Divider,
+  Box,
+  useMediaQuery,
+  useTheme,
+  Button,
+  Grid,
+} from '@mui/material'
 import { useTranslation } from 'next-i18next'
 
+import { OrderHistoryTemplateStyle } from './OrderHistoryTemplate.styles'
 import { FilterOrders, FilterTiles, FullWidthDivider } from '@/components/common'
 import { OrderHistoryItem, ViewOrderDetails, OrderReturnItems } from '@/components/order'
 import { useUpdateRoutes, useGetCustomerOrders } from '@/hooks'
@@ -52,6 +62,9 @@ const OrderHistoryTemplate = (props: OrderHistoryProps) => {
   const { updateRoute, changeFilters } = useUpdateRoutes()
   const theme = useTheme()
   const mdScreen = useMediaQuery(theme.breakpoints.up('md'))
+
+  const isSmallScreen = useMediaQuery(theme.breakpoints.down('sm'))
+  const isMediumScreen = useMediaQuery(theme.breakpoints.between('md', 'lg'))
   const { t } = useTranslation('common')
 
   const facetList = facetGetters.getFacetListByQueryFilter(queryFilters)
@@ -133,15 +146,24 @@ const OrderHistoryTemplate = (props: OrderHistoryProps) => {
               )}
             </Stack>
 
-            <Stack>
+            <Grid container>
               {items?.map((order) => (
-                <OrderHistoryItem
+                <Grid
                   key={order?.id}
-                  {...getOrderDetails(order as CrOrder)}
-                  onHistoryItemClick={handleHistoryItemClick}
-                />
+                  item
+                  xs={isSmallScreen ? 12 : 6}
+                  md={isMediumScreen ? 6 : 4}
+                  data-testid="saved-cards-and-contacts"
+                  sx={{ ...OrderHistoryTemplateStyle.OrderHistoryItemBox }}
+                >
+                  <OrderHistoryItem
+                    key={order?.id}
+                    {...getOrderDetails(order as CrOrder)}
+                    onHistoryItemClick={handleHistoryItemClick}
+                  />
+                </Grid>
               ))}
-            </Stack>
+            </Grid>
           </Stack>
         )}
         {showFilterBy && (

@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react'
+import React, { useCallback, useState } from 'react'
 
 import AccountCircle from '@mui/icons-material/AccountCircle'
 import ChevronLeft from '@mui/icons-material/ChevronLeft'
@@ -15,12 +15,15 @@ import {
   useTheme,
   Link,
   Grid,
+  Button,
 } from '@mui/material'
 import getConfig from 'next/config'
 import { useRouter } from 'next/router'
 import { useTranslation } from 'next-i18next'
 import { useReCaptcha } from 'next-recaptcha-v3'
 
+import { B2CMyAccountStyle } from './MyAccountTemplate.styles'
+import { FullWidthDivider } from '@/components/common'
 import { MyProfile, PaymentMethod, AddressBook } from '@/components/my-account'
 import { useAuthContext, useSnackbarContext } from '@/context'
 import {
@@ -36,58 +39,6 @@ import { validateGoogleReCaptcha } from '@/lib/helpers'
 import type { BillingAddress, CardType } from '@/lib/types'
 
 import type { CuAddress, CustomerAccount } from '@/lib/gql/types'
-
-const style = {
-  accordion: {
-    ':before': {
-      backgroundColor: 'transparent',
-    },
-    boxShadow: 0,
-    borderRadius: 0,
-  },
-
-  accordionDetails: {
-    pt: 0,
-    p: { md: 0 },
-  },
-  myAccountChildren: {
-    paddingLeft: { md: 0, xs: '1rem' },
-    paddingRight: { md: 0, xs: '1rem' },
-    marginTop: '0.75rem',
-    marginBottom: '0.75rem',
-  },
-  accordionSummary: {
-    padding: { md: 0 },
-  },
-  expandedIcon: {
-    color: 'text.primary',
-  },
-  orderHistory: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    cursor: 'pointer',
-    alignItems: 'center',
-  },
-  accountCircle: {
-    fontSize: {
-      md: '2.7rem',
-      xs: '3.3rem',
-    },
-  },
-  backButton: {
-    typography: 'body2',
-    textDecoration: 'none',
-    color: 'text.primary',
-    display: 'flex',
-    alignItems: 'center',
-    padding: '1rem 0.5rem',
-    cursor: 'pointer',
-  },
-  divider: {
-    height: '1.188rem',
-    borderColor: 'transparent',
-  },
-}
 
 interface MyAccountTemplateProps {
   user?: CustomerAccount
@@ -113,8 +64,20 @@ const MyAccountTemplate = (props: MyAccountTemplateProps) => {
   const { updateCustomerAddress } = useUpdateCustomerAddress()
   const { validateCustomerAddress } = useValidateCustomerAddress()
 
+  const [selectedOption, setSelectedOption] = useState('my-profile-content')
+
+  const handleSelectChange = (event: any) => {
+    setSelectedOption(event.target.value)
+    if (window.innerWidth <= 600) {
+      window.scrollTo({
+        top: window.scrollY + 400,
+        behavior: 'smooth',
+      })
+    }
+  }
+
   const handleGoToOrderHistory = () => {
-    router.push('/my-account/order-history?filters=M-6')
+    router.push('/my-account/order-history')
   }
 
   const handleGoToSubscription = useCallback(() => {
@@ -179,56 +142,27 @@ const MyAccountTemplate = (props: MyAccountTemplateProps) => {
     })
   }
 
-  const accordionData = [
-    {
-      id: 'my-profile-accordion',
-      controls: 'my-profile-content',
-      header: t('my-profile'),
-      component: <MyProfile user={user as CustomerAccount} />,
-    },
-    {
-      id: 'address-book-accordion',
-      controls: 'address-book-content',
-      header: t('address-book'),
-      component: <AddressBook user={user as CustomerAccount} contacts={contacts} />,
-    },
-    {
-      id: 'payment-method-accordion',
-      controls: 'payment-method-content',
-      header: t('payment-method'),
-      component: (
-        <PaymentMethod
-          user={user as CustomerAccount}
-          cards={cards}
-          contacts={contacts}
-          onSave={(address, card, isUpdatingAddress) =>
-            reCaptchaKey
-              ? submitFormWithRecaptcha(address, card, isUpdatingAddress)
-              : handleSave(address, card, isUpdatingAddress)
-          }
-        />
-      ),
-    },
-  ]
-
   return (
-    <Grid container>
-      <Grid item md={8} xs={12}>
-        {!mdScreen && (
-          <Link aria-label={t('back')} sx={{ ...style.backButton }} href="/">
-            <ChevronLeft />
-            {t('back')}
-          </Link>
-        )}
-        <Box
+    <Box>
+      {!mdScreen && (
+        <Link aria-label={t('back')} sx={{ ...B2CMyAccountStyle.backButton }} href="/">
+          <ChevronLeft />
+          {t('back')}
+        </Link>
+      )}
+      <Grid container>
+        <Grid
+          item
+          md={12}
+          xs={12}
           sx={{
             display: { md: 'flex', xs: 'block' },
             alignItems: 'center',
-            ...style.myAccountChildren,
+            ...B2CMyAccountStyle.myAccountChildren,
           }}
         >
           <Box sx={{ display: { xs: 'flex' }, justifyContent: { xs: 'center' } }}>
-            <AccountCircle sx={{ ...style.accountCircle }} />
+            <AccountCircle sx={{ ...B2CMyAccountStyle.accountCircle }} />
           </Box>
           <Typography
             variant={mdScreen ? 'h1' : 'h2'}
@@ -236,66 +170,102 @@ const MyAccountTemplate = (props: MyAccountTemplateProps) => {
           >
             {t('my-account')}
           </Typography>
-        </Box>
-        <Divider sx={{ borderColor: 'grey.500' }} />
-
-        {accordionData.map((data) => {
-          return (
-            <Box key={data.id}>
-              <Accordion disableGutters sx={{ ...style.accordion }}>
-                <AccordionSummary
-                  expandIcon={<ExpandMoreIcon sx={{ ...style.expandedIcon }} />}
-                  aria-controls={data.controls}
-                  id={data.id}
-                  sx={{ ...style.accordionSummary }}
+        </Grid>
+        <Grid item md={2} sm={3} xs={12} sx={{ ...B2CMyAccountStyle.menuBarContainerStyle }}>
+          <Box sx={{ ...B2CMyAccountStyle.menuBarStyle }}>
+            <Divider />
+            <Button
+              sx={
+                selectedOption && selectedOption === 'my-profile-content'
+                  ? { ...B2CMyAccountStyle.menuButtonSelected }
+                  : { ...B2CMyAccountStyle.menuButtons }
+              }
+              onClick={handleSelectChange}
+              value="my-profile-content"
+            >
+              {t('my-profile')}
+            </Button>
+            <Divider />
+            <Button
+              sx={
+                selectedOption && selectedOption === 'address-book-content'
+                  ? { ...B2CMyAccountStyle.menuButtonSelected }
+                  : { ...B2CMyAccountStyle.menuButtons }
+              }
+              onClick={handleSelectChange}
+              value="address-book-content"
+            >
+              {t('address-book')}
+            </Button>
+            <Divider />
+            <Button
+              sx={
+                selectedOption && selectedOption === 'payment-method-content'
+                  ? { ...B2CMyAccountStyle.menuButtonSelected }
+                  : { ...B2CMyAccountStyle.menuButtons }
+              }
+              onClick={handleSelectChange}
+              value="payment-method-content"
+            >
+              {t('payment-method')}
+            </Button>
+            <Divider />
+            <Button
+              sx={{
+                ...B2CMyAccountStyle.menuButtons,
+              }}
+              onClick={handleGoToOrderHistory}
+            >
+              {t('order-history')}
+            </Button>
+            <Divider />
+            {isSubscriptionEnabled && (
+              <>
+                <Button
+                  sx={{
+                    ...B2CMyAccountStyle.menuButtons,
+                  }}
+                  onClick={handleGoToSubscription}
                 >
-                  <Typography variant="h3">{data.header}</Typography>
-                </AccordionSummary>
-                <AccordionDetails>{data.component}</AccordionDetails>
-              </Accordion>
-              <Divider sx={{ borderColor: 'grey.500' }} />
-            </Box>
-          )
-        })}
-
-        <Box sx={{ ...style.myAccountChildren }}>
-          <Typography variant={mdScreen ? 'h1' : 'h2'}>{t('order-details')}</Typography>
-        </Box>
-
-        {/* code for subscription below */}
-        <Divider sx={{ borderColor: 'grey.500' }} />
-        {isSubscriptionEnabled && (
-          <Box
-            sx={{
-              ...style.myAccountChildren,
-              ...style.orderHistory,
-            }}
-            onClick={handleGoToSubscription}
-          >
-            <Typography variant="h3">{t('my-subscription')}</Typography>
-            <ChevronRightIcon />
+                  {t('my-subscription')}
+                </Button>
+                <Divider />
+              </>
+            )}
+            <Button sx={{ ...B2CMyAccountStyle.menuButtons }} onClick={logout} value="option2">
+              {t('logout')}
+            </Button>
+            <Divider />
           </Box>
-        )}
-        {/* code for subscription ends here */}
-
-        <Divider sx={{ borderColor: 'grey.500' }} />
-        <Box
-          sx={{
-            ...style.myAccountChildren,
-            ...style.orderHistory,
-          }}
-          onClick={handleGoToOrderHistory}
-        >
-          <Typography variant="h3">{t('order-history')}</Typography>
-          <ChevronRightIcon />
-        </Box>
-        <Divider sx={{ backgroundColor: 'grey.300', ...style.divider }} />
-        <Box sx={{ ...style.myAccountChildren, cursor: 'pointer' }} onClick={logout}>
-          <Typography variant="h3">{t('logout')}</Typography>
-        </Box>
-        <Divider sx={{ borderColor: 'grey.500' }} />
+        </Grid>
+        <Grid item md={10} sm={9} xs={12}>
+          <Box sx={{ ...B2CMyAccountStyle.b2cDataSection }}>
+            {selectedOption && (
+              <div>
+                {selectedOption === 'my-profile-content' && (
+                  <MyProfile user={user as CustomerAccount} />
+                )}
+                {selectedOption === 'address-book-content' && (
+                  <AddressBook user={user as CustomerAccount} contacts={contacts} />
+                )}
+                {selectedOption === 'payment-method-content' && (
+                  <PaymentMethod
+                    user={user as CustomerAccount}
+                    cards={cards}
+                    contacts={contacts}
+                    onSave={(address, card, isUpdatingAddress) =>
+                      reCaptchaKey
+                        ? submitFormWithRecaptcha(address, card, isUpdatingAddress)
+                        : handleSave(address, card, isUpdatingAddress)
+                    }
+                  />
+                )}
+              </div>
+            )}
+          </Box>
+        </Grid>
       </Grid>
-    </Grid>
+    </Box>
   )
 }
 

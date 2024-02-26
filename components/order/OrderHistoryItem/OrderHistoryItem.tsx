@@ -1,11 +1,22 @@
 import React from 'react'
 
 import ArrowForwardIos from '@mui/icons-material/ArrowForwardIos'
-import { Box, Stack, Typography, useMediaQuery, useTheme, Divider } from '@mui/material'
+import {
+  Box,
+  Stack,
+  Typography,
+  useMediaQuery,
+  useTheme,
+  Divider,
+  Grid,
+  Card,
+  CardContent,
+  CardActions,
+} from '@mui/material'
 import { useTranslation } from 'next-i18next'
 
 import { FullWidthDivider, Price } from '@/components/common'
-
+import { OrderHistoryTemplateStyle } from '@/components/page-templates/OrderHistoryTemplate/OrderHistoryTemplate.styles'
 export interface OrderHistoryItemProps {
   id: string
   submittedDate: string
@@ -35,43 +46,40 @@ const OrderHistoryItem = (props: OrderHistoryItemProps) => {
   const { id, submittedDate, productNames, orderTotal, orderStatus, onHistoryItemClick } = props
   const { t } = useTranslation('common')
 
-  const theme = useTheme()
-  const mdScreen = useMediaQuery(theme.breakpoints.up('md'))
+  const givenString = productNames
+  const productNamesArray = givenString.split(',')
+  const firstItem = productNamesArray[0].trim() // Get the first item and remove leading/trailing whitespace
+  const totalItems = productNamesArray.length
 
   const handleHistoryItemClick = () => {
     onHistoryItemClick(id)
   }
 
   return (
-    <Stack>
-      <Stack
-        sx={styles.stack}
-        direction="row"
+    <>
+      <Card
+        sx={{ ...OrderHistoryTemplateStyle.ItemCard }}
         data-testid="history-item"
         onClick={handleHistoryItemClick}
       >
-        <Stack sx={{ width: '95%' }} gap={0.6}>
+        <CardContent sx={{ ...OrderHistoryTemplateStyle.ItemCardContent }}>
           <Typography variant="body1" fontWeight="bold">
             {submittedDate}
           </Typography>
           <Typography variant="body1" color={'text.secondary'}>
-            {productNames}
+            {firstItem}{' '}
+            {totalItems > 1 && (
+              <Typography component="span">and {totalItems - 1} more item</Typography>
+            )}
           </Typography>
-
           <Price price={t('currency', { val: orderTotal })} />
 
           <Typography variant="body2" color={'primary'}>
             {orderStatus}
           </Typography>
-        </Stack>
-        <Box sx={styles.box}>
-          <ArrowForwardIos fontSize="inherit" />
-        </Box>
-      </Stack>
-      <Stack>
-        {mdScreen ? <Divider sx={{ borderColor: 'grey.500' }} /> : <FullWidthDivider />}
-      </Stack>
-    </Stack>
+        </CardContent>
+      </Card>
+    </>
   )
 }
 

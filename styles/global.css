@@ -35,3 +35,38 @@ a {
   text-decoration: none;
   color: inherit;
 }
+
+.AddressBox {
+  padding: 20px 15px 20px 0;
+}
+.primaryButton {
+  padding: 10px 20px !important;
+  border-radius: 5px !important;
+  background-color: #8d59fc !important;
+  border: 1px solid #8d59fc !important;
+  font-size: 14px !important;
+  color: #ffffff !important;
+  font-weight: 600 !important;
+}
+
+.primaryButton:hover {
+  background-color: rgb(98, 62, 176) !important;
+  border: 1px solid rgb(98, 62, 176) !important;
+}
+
+.AddressBoxCardAction {
+  justify-content: space-between;
+}
+.AddressBoxCardActionSectionPrimary {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  align-items: center;
+  padding: 0 16px;
+}
+.AddressBoxCardActionSection {
+  display: flex;
+  justify-content: space-around;
+  width: 100%;
+  align-items: center;
+}

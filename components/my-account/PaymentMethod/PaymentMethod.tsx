@@ -1,11 +1,26 @@
 import React, { useEffect, useState } from 'react'
 
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline'
-import { Box, Button, Checkbox, FormControlLabel, Stack, Typography, SxProps } from '@mui/material'
+import {
+  Box,
+  Button,
+  Checkbox,
+  FormControlLabel,
+  Stack,
+  Typography,
+  SxProps,
+  Grid,
+  CardContent,
+  CardActions,
+  Card,
+} from '@mui/material'
 import { Theme } from '@mui/material/styles'
+import { useTheme } from '@mui/material/styles'
+import useMediaQuery from '@mui/material/useMediaQuery'
 import getConfig from 'next/config'
 import { useTranslation } from 'next-i18next'
 
+import { PaymentMethodStyle } from './PaymentMethod.styles'
 import { CardDetailsForm } from '@/components/checkout'
 import { AddressForm, KiboPagination, AddressCard, KiboRadio } from '@/components/common'
 import PaymentBillingCard from '@/components/common/PaymentBillingCard/PaymentBillingCard'
@@ -110,6 +125,11 @@ const PaymentMethod = (props: PaymentMethodProps) => {
   )
   const savedAddresses = userGetters.getSavedAddresses(contacts)
   const billingAddresses = userGetters.getUserBillingAddresses(savedAddresses)
+
+  const theme = useTheme()
+  const isSmallScreen = useMediaQuery(theme.breakpoints.down('sm'))
+
+  const isMediumScreen = useMediaQuery(theme.breakpoints.between('md', 'lg'))
 
   const { deleteCustomerCard } = useDeleteCustomerCard()
   const { deleteCustomerAddress } = useDeleteCustomerAddress()
@@ -338,63 +358,90 @@ const PaymentMethod = (props: PaymentMethodProps) => {
           {!displaySavedCardsAndContacts?.length && (
             <Typography variant="body1">{t('no-saved-payments-yet')}</Typography>
           )}
-
-          {displaySavedCardsAndContacts?.map((each) => (
-            <Stack key={each?.cardInfo?.id as string} data-testid="saved-cards-and-contacts">
-              {each.cardInfo?.isDefaultPayMethod && (
-                <Typography variant="body1" fontWeight={700}>
-                  {t('primary')}
-                </Typography>
+          <Grid container>
+            {displaySavedCardsAndContacts?.length && (
+              <Grid item xs={12}>
+                <Box>
+                  <Typography variant="h3" sx={{ pb: '1rem', fontWeight: '700' }}>
+                    {t('saved-cards')}
+                  </Typography>
+                </Box>
+              </Grid>
+            )}
+            {displaySavedCardsAndContacts?.map((each) => (
+              <Grid
+                key={each?.cardInfo?.id as string}
+                item
+                xs={isSmallScreen ? 12 : 10}
+                md={isMediumScreen ? 6 : 4}
+                data-testid="saved-cards-and-contacts"
+                sx={{ ...PaymentMethodStyle.PaymentsBox }}
+              >
+                <Card>
+                  <CardContent>
+                    <PaymentBillingCard
+                      cardNumberPart={cardGetters.getCardNumberPart(each.cardInfo)}
+                      expireMonth={cardGetters.getExpireMonth(each.cardInfo)}
+                      expireYear={cardGetters.getExpireYear(each.cardInfo)}
+                      cardType={cardGetters.getCardType(each.cardInfo)}
+                      {...addressGetters.getAddress(
+                        each?.billingAddressInfo?.contact?.address as CrAddress
+                      )}
+                    />
+                  </CardContent>
+                  <CardActions sx={{ ...PaymentMethodStyle.cardAction }}>
+                    <Box
+                      sx={
+                        each.cardInfo?.isDefaultPayMethod
+                          ? { ...PaymentMethodStyle.cardActionSectionPrimary }
+                          : { ...PaymentMethodStyle.cardActionSection }
+                      }
+                    >
+                      {each.cardInfo?.isDefaultPayMethod && (
+                        <Typography variant="body1" fontWeight={700}>
+                          {t('primary')}
+                        </Typography>
+                      )}
+                      <Button
+                        sx={{ cursor: 'pointer' }}
+                        onClick={() => handleEdit(each)}
+                        data-testid="payment-method-edit-link"
+                      >
+                        {t('edit')}
+                      </Button>
+                      <Button
+                        sx={{ cursor: 'pointer' }}
+                        onClick={() => openDeleteConfirmation(each.cardInfo as SavedCard)}
+                      >
+                        {t('delete')}
+                      </Button>
+                    </Box>
+                  </CardActions>
+                </Card>
+              </Grid>
+            ))}
+            <Grid item xs={12}>
+              {displaySavedCardsAndContacts?.length > 0 && savedCardsAndContacts.length > 5 && (
+                <Box display={'flex'} justifyContent={'center'} width="100%" py={10}>
+                  <KiboPagination
+                    count={Math.ceil(savedCardsAndContacts.length / paymentMethodPageSize)}
+                    startIndex={paymentMethodStartIndex}
+                    pageSize={paymentMethodPageSize}
+                    onPaginationChange={handlePaymentMethodPagination}
+                  />
+                </Box>
               )}
-              <Box display="flex" justifyContent={'space-between'}>
-                <PaymentBillingCard
-                  cardNumberPart={cardGetters.getCardNumberPart(each.cardInfo)}
-                  expireMonth={cardGetters.getExpireMonth(each.cardInfo)}
-                  expireYear={cardGetters.getExpireYear(each.cardInfo)}
-                  cardType={cardGetters.getCardType(each.cardInfo)}
-                  {...addressGetters.getAddress(
-                    each?.billingAddressInfo?.contact?.address as CrAddress
-                  )}
-                />
-                <Stack gap={1}>
-                  <Typography
-                    variant="body2"
-                    sx={{ cursor: 'pointer' }}
-                    onClick={() => handleEdit(each)}
-                    data-testid="payment-method-edit-link"
-                  >
-                    {t('edit')}
-                  </Typography>
-                  <Typography
-                    variant="body2"
-                    sx={{ cursor: 'pointer' }}
-                    onClick={() => openDeleteConfirmation(each.cardInfo as SavedCard)}
-                  >
-                    {t('delete')}
-                  </Typography>
-                </Stack>
-              </Box>
-            </Stack>
-          ))}
-          <Button
-            variant="contained"
-            color="primary"
-            sx={{ ...buttonStyle }}
-            onClick={() => handleAddNewPaymentMethod()}
-            startIcon={<AddCircleOutlineIcon />}
-          >
-            {t('add-payment-method')}
-          </Button>
-          {displaySavedCardsAndContacts?.length > 0 && savedCardsAndContacts.length > 5 && (
-            <Box display={'flex'} justifyContent={'center'} width="100%" py={10}>
-              <KiboPagination
-                count={Math.ceil(savedCardsAndContacts.length / paymentMethodPageSize)}
-                startIndex={paymentMethodStartIndex}
-                pageSize={paymentMethodPageSize}
-                onPaginationChange={handlePaymentMethodPagination}
-              />
-            </Box>
-          )}
+            </Grid>
+          </Grid>
+          <Box>
+            <Button
+              sx={{ ...PaymentMethodStyle.primaryButton }}
+              onClick={() => handleAddNewPaymentMethod()}
+              startIcon={<AddCircleOutlineIcon />}
+            >
+              {t('add-payment-method')}
+            </Button>
+          </Box>
         </Stack>
       )}
 

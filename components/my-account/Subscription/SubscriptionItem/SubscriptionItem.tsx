@@ -22,6 +22,7 @@ import {
   EditBillingAddress,
   AddressFormDialog,
 } from '@/components/dialogs'
+import { SubscriptionListStyle } from '@/components/my-account/Subscription/SubscriptionList/SubscriptionList.styles'
 import { useModalContext, useSnackbarContext, useAuthContext } from '@/context'
 import {
   useSkipNextSubscription,
@@ -67,47 +68,6 @@ import type {
 interface SubscriptionItemProps {
   subscriptionDetailsData: Subscription
   fulfillmentInfoList: FulfillmentInfo[]
-}
-
-const style = {
-  wrapIcon: {
-    display: 'flex',
-    alignItems: 'center',
-    flexWrap: 'wrap',
-    cursor: 'pointer',
-  },
-  button: {
-    width: '100%',
-    mt: '5%',
-    ml: '0.5%',
-    px: {
-      xs: 1,
-      sm: 4,
-    },
-  },
-  card: {
-    maxWidth: '100%',
-    border: 1,
-    borderRadius: 1,
-    mt: '1%',
-  },
-  subscriptionNumber: {
-    pt: {
-      xs: '2%',
-      md: '0',
-    },
-    justifyContent: {
-      xs: 'flex-start',
-      md: 'space-between',
-    },
-  },
-  subscriptionItem: {
-    pt: {
-      xs: '2%',
-      md: '1%',
-    },
-    justifyContent: 'space-between',
-  },
 }
 
 const SubscriptionItem = (props: SubscriptionItemProps) => {
@@ -350,7 +310,7 @@ const SubscriptionItem = (props: SubscriptionItemProps) => {
   useEffect(() => setCurrentShippingAddressAsDefault(), [subscriptionDetailsData?.fulfillmentInfo])
 
   return (
-    <Card sx={{ ...style.card }}>
+    <Card sx={{ ...SubscriptionListStyle.card }}>
       <CardContent sx={{ bgcolor: 'grey.100' }}>
         <Stack
           direction={{ xs: 'column', md: 'row' }}
@@ -365,7 +325,7 @@ const SubscriptionItem = (props: SubscriptionItemProps) => {
               {subscriptionGetters.getSubscriberAddress(subscriptionDetailsData)}
             </Typography>
           </Stack>
-          <Stack direction="column" sx={{ ...style.subscriptionNumber }}>
+          <Stack direction="column" sx={{ ...SubscriptionListStyle.subscriptionNumber }}>
             <Stack direction="row">
               <KeyValueDisplay
                 option={{
@@ -390,7 +350,10 @@ const SubscriptionItem = (props: SubscriptionItemProps) => {
         </Stack>
       </CardContent>
       <CardContent>
-        <Stack direction={{ xs: 'column-reverse', md: 'row' }} sx={{ ...style.subscriptionItem }}>
+        <Stack
+          direction={{ xs: 'column-reverse', md: 'row' }}
+          sx={{ ...SubscriptionListStyle.subscriptionItem }}
+        >
           <Stack direction="column" sx={{ pt: { xs: '5 %' } }}>
             <Stack direction="column" sx={{ mt: { md: '3%' } }}>
               {subscriptionDetailsData?.items &&
@@ -434,7 +397,7 @@ const SubscriptionItem = (props: SubscriptionItemProps) => {
               <Button
                 variant="contained"
                 color="secondary"
-                sx={{ ...style.button }}
+                sx={{ ...SubscriptionListStyle.primaryButton }}
                 disabled={isSubscriptionCanceled}
                 onClick={() =>
                   handleShowDialog(ConfirmationDialog, {
@@ -449,7 +412,7 @@ const SubscriptionItem = (props: SubscriptionItemProps) => {
               <Button
                 variant="contained"
                 color="secondary"
-                sx={{ ...style.button }}
+                sx={{ ...SubscriptionListStyle.primaryButton }}
                 disabled={isSubscriptionCanceled}
                 onClick={() =>
                   handleShowDialog(ConfirmationDialog, {
@@ -466,7 +429,7 @@ const SubscriptionItem = (props: SubscriptionItemProps) => {
               <Button
                 variant="contained"
                 color="secondary"
-                sx={{ ...style.button }}
+                sx={{ ...SubscriptionListStyle.primaryButton }}
                 disabled={isSubscriptionCanceled}
                 onClick={() =>
                   handleShowDialog(ConfirmationDialog, {
@@ -481,7 +444,7 @@ const SubscriptionItem = (props: SubscriptionItemProps) => {
               <Button
                 variant="contained"
                 color="secondary"
-                sx={{ ...style.button }}
+                sx={{ ...SubscriptionListStyle.primaryButton }}
                 disabled={isSubscriptionCanceled}
                 onClick={handleBillingPopupOpen}
               >
@@ -526,7 +489,7 @@ const SubscriptionItem = (props: SubscriptionItemProps) => {
                   <Button
                     variant="contained"
                     color="primary"
-                    sx={{ ...style.button }}
+                    sx={{ ...SubscriptionListStyle.primaryButton }}
                     onClick={() =>
                       handleShowDialog(EditBillingAddress, {
                         user,
@@ -547,7 +510,7 @@ const SubscriptionItem = (props: SubscriptionItemProps) => {
               <Button
                 variant="contained"
                 color="secondary"
-                sx={{ ...style.button }}
+                sx={{ ...SubscriptionListStyle.primaryButton }}
                 disabled={isSubscriptionCanceled}
                 onClick={() =>
                   handleShowDialog(EditSubscriptionFrequencyDialog, {
@@ -563,7 +526,7 @@ const SubscriptionItem = (props: SubscriptionItemProps) => {
               <Button
                 variant="contained"
                 color="secondary"
-                sx={{ ...style.button }}
+                sx={{ ...SubscriptionListStyle.primaryButton }}
                 disabled={isSubscriptionCanceled}
                 onClick={handleShippingPopupOpen}
               >
@@ -604,7 +567,7 @@ const SubscriptionItem = (props: SubscriptionItemProps) => {
                   <Button
                     variant="contained"
                     color="primary"
-                    sx={{ ...style.button }}
+                    sx={{ ...SubscriptionListStyle.primaryButton }}
                     onClick={() =>
                       handleShowDialog(AddressFormDialog, {
                         subscriptionId: subscriptionDetailsData?.id as string,
@@ -624,7 +587,7 @@ const SubscriptionItem = (props: SubscriptionItemProps) => {
               <Button
                 variant="contained"
                 color="secondary"
-                sx={{ ...style.button }}
+                sx={{ ...SubscriptionListStyle.primaryButton }}
                 disabled={isSubscriptionCanceled}
                 onClick={() =>
                   handleShowDialog(EditOrderDateDialog, {
@@ -640,7 +603,7 @@ const SubscriptionItem = (props: SubscriptionItemProps) => {
               <Button
                 variant="contained"
                 color="secondary"
-                sx={{ ...style.button }}
+                sx={{ ...SubscriptionListStyle.primaryButton }}
                 disabled={isSubscriptionCanceled}
                 onClick={() =>
                   handleShowDialog(ConfirmationDialog, {

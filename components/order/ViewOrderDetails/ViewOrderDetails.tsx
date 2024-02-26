@@ -6,6 +6,7 @@ import { useTranslation } from 'next-i18next'
 
 import { AddressCard, OrderSummary, ProductItemList, KeyValueDisplay } from '@/components/common'
 import PaymentBillingCard from '@/components/common/PaymentBillingCard/PaymentBillingCard'
+import { OrderHistoryTemplateStyle } from '@/components/page-templates/OrderHistoryTemplate/OrderHistoryTemplate.styles'
 import { useGetStoreLocations } from '@/hooks'
 import { OrderStatus, ReturnStatus } from '@/lib/constants'
 import { addressGetters, orderGetters, storeLocationGetters } from '@/lib/getters'
@@ -225,10 +226,7 @@ const ViewOrderDetails = (props: ViewOrderDetailsProps) => {
             <OrderSummary {...orderSummeryArgs}>
               {order?.status === OrderStatus.COMPLETED && (
                 <Button
-                  variant="contained"
-                  color="inherit"
-                  fullWidth
-                  sx={{ mt: '0.75rem' }}
+                  className="primaryButton"
                   onClick={() => onReturnItemsVisible && onReturnItemsVisible(true)}
                   disabled={order?.returnStatus !== ReturnStatus.NONE}
                 >
