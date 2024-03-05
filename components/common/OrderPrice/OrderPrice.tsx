@@ -55,12 +55,7 @@ const OrderPrice = (props: OrderPriceProps) => {
           <Typography sx={{ ...styles.priceLabel }} variant="body1">
             {subTotalLabel}
           </Typography>
-          <Price
-            variant="body1"
-            fontWeight="bold"
-            price={subTotal}
-            salePrice={discountedSubtotal}
-          />
+          <Price variant="body1" fontWeight="bold" price={subTotal} />
         </Box>
         {shippingTotalLabel && (
           <Box sx={{ ...styles.priceRow }}>
