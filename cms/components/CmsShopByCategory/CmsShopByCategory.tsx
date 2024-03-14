@@ -103,7 +103,6 @@ const CmsHomePageCategory = (props: HomePageProps) => {
             <NavigateBeforeIcon />
           </IconButton>
         </Box>
-        <Box sx={ShopByCategoryStyle.viewAllText}>VIEW ALL</Box>
       </Box>
       <Grid container spacing={4} sx={ShopByCategoryStyle.gridContainer}>
         {items.slice(currentIndex, currentIndex + itemsPerPage).map((item: any) => (
